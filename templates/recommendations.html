@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skincare Recommendations</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Skincare Recommendations</h2>
+    <div class="row">
+        {% for recommendation in recommendations %}
+        <div class="col-md-4">
+            <div class="card mb-4 shadow-sm">
+                <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image">
+                <div class="card-body">
+                    <h5 class="card-title">{{ recommendation[1] }}</h5>
+                    <p class="card-text">Brand: {{ recommendation[2] }}</p>
+                    <p class="card-text">Price: {{ recommendation[4] }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+</body>
+</html>

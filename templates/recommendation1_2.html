@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skincare Recommendations</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Skincare Recommendations</h1>
+        <ul class="list-group">
+            {% for recommendation in recommendations %}
+                <li class="list-group-item">{{ recommendation }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skincare Recommendation System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Skincare Recommendation System</h1>
+        <form method="POST" action="/recommendation">
+            <div class="form-group">
+                <label for="category">Skincare Category:</label>
+                <input type="text" class="form-control" id="category" name="category" required>
+            </div>
+            <div class="form-group">
+                <label for="skin_type">Skin Type:</label>
+                <input type="text" class="form-control" id="skin_type" name="skin_type" required>
+            </div>
+            <div class="form-group">
+                <label for="previous_products">Previous Skincare Products Used:</label>
+                <input type="text" class="form-control" id="previous_products" name="previous_products" required>
+            </div>
+            <div class="form-group">
+                <label for="problematic_ingredients">Problematic Ingredients:</label>
+                <input type="text" class="form-control" id="problematic_ingredients" name="problematic_ingredients" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Get Recommendations</button>
+        </form>
+    </div>
+</body>
+</html>
