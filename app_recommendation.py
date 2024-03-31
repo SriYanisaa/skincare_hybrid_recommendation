@@ -120,7 +120,7 @@ def home():
 @app.route('/recommend', methods=['POST'])
 def recommend():
     form_data = request.form
-    category = form_data['category']
+    category = form_data['category']  # Misalnya, 'Mask Sheet'
     skin_type = form_data['skin_type']
     used_products = form_data['previous_skincare']
     incompatible_ingredients = form_data['incompatible_ingredients']
@@ -131,21 +131,26 @@ def recommend():
 
     input_cosine_sim = cosine_similarity(input_tfidf_matrix, tfidf_matrix)
 
+    # Filter products based on category
+    category_id = category_to_category_encoded[category]
+    products_in_category = data[data['category_id'] == category_id]
+
     most_similar_product_idx = np.argmax(input_cosine_sim)
-    print("Most similar product index:", most_similar_product_idx)  # Debug output
-    most_similar_product_id = data.iloc[most_similar_product_idx]['product_id']
+    most_similar_product_id = products_in_category.iloc[most_similar_product_idx]['product_id']
 
     # Collaborative Filtering Score
-    category_id = category_to_category_encoded[category]
     category_input_cnn = np.array([category_id])
     product_input_cnn = np.array([most_similar_product_id])
     cf_score = model.predict([category_input_cnn, product_input_cnn])
 
     # Content-Based Filtering Score
     content_scores = []
-    for idx, _ in enumerate(skincare_ids):
-        content_score = cosine_similarity(input_tfidf_matrix, tfidf_matrix[idx])
-        content_scores.append(content_score)
+    for idx, product_id in enumerate(products_in_category['product_id']):
+        if idx < tfidf_matrix.shape[0]:  # Menggunakan shape[0] untuk mendapatkan jumlah baris matriks
+            content_score = cosine_similarity(input_tfidf_matrix, tfidf_matrix[idx])
+            content_scores.append(content_score)
+        else:
+            print(f"Index {idx} is out of range for tfidf_matrix.")
 
     # Hybrid recommendation (weighted sum)
     alpha = 0.7  # Adjust the weight based on performance
@@ -154,7 +159,7 @@ def recommend():
     # Get top N recommendations
     N = 5
     top_n_indices = np.argsort(hybrid_scores.flatten())[::-1][:N]
-    top_n_products = [skincare_encoded_to_skincare[i] for i in top_n_indices]
+    top_n_products = [products_in_category.iloc[i]['product_id'] for i in top_n_indices]
 
     # Convert indices to product names and brands
     top_n_products_info = data.loc[data['product_id'].isin(top_n_products),
