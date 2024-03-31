@@ -13,7 +13,12 @@
     <form method="POST" action="/recommend">
         <div class="form-group">
             <label for="category">Kategori:</label>
-            <input type="text" class="form-control" id="category" name="category" required>
+            <select class="form-control" id="category" name="category" required>
+                <option value="" disabled selected>Pilih Kategori</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
             <label for="skin_type">Jenis Kulit:</label>

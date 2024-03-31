@@ -115,7 +115,8 @@ model.load_weights('recommender_model_cnn_weights.h5')
 
 @app.route('/')
 def home():
-    return render_template('index.html')
+    categories = data['subcategory'].unique().tolist()  # Ambil daftar kategori
+    return render_template('index.html', categories=categories)
 
 @app.route('/recommend', methods=['POST'])
 def recommend():
