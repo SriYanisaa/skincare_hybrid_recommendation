@@ -136,14 +136,18 @@ def recommend():
     category_id = category_to_category_encoded[category]
     products_in_category = data[data['category_id'] == category_id]
 
-    # Get the most similar product based on cosine similarity
-    most_similar_product_idx = np.argsort(input_cosine_sim.flatten())[-1]
-    most_similar_product_id = products_in_category.iloc[most_similar_product_idx]['product_id']
+    # Get the top N most similar products based on cosine similarity
+    N = int(form_data.get('n', 5)) 
+    top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1][:N]
+    top_n_similar_product_ids = products_in_category.iloc[top_n_similar_products_idx]['product_id'].tolist()
 
     # Collaborative Filtering Score
     category_input_cnn = np.array([category_id])
-    product_input_cnn = np.array([most_similar_product_id])
-    cf_score = model.predict([category_input_cnn, product_input_cnn])
+    cf_scores = []
+    for product_id in top_n_similar_product_ids:
+        product_input_cnn = np.array([product_id])
+        cf_score = model.predict([category_input_cnn, product_input_cnn])
+        cf_scores.append(cf_score)
 
     # Content-Based Filtering Score
     content_scores = []
