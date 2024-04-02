@@ -126,7 +126,7 @@ def recommend():
     used_products = form_data['previous_skincare']
     incompatible_ingredients = form_data['incompatible_ingredients']
     
-    input_description = f'{skin_type} {used_products} {incompatible_ingredients}'
+    input_description = f'{category} {skin_type} {used_products}'
 
     input_tfidf_matrix = tfidf.transform([input_description])
 
@@ -136,7 +136,8 @@ def recommend():
     category_id = category_to_category_encoded[category]
     products_in_category = data[data['category_id'] == category_id]
 
-    most_similar_product_idx = np.argmax(input_cosine_sim)
+    # Get the most similar product based on cosine similarity
+    most_similar_product_idx = np.argsort(input_cosine_sim.flatten())[-1]
     most_similar_product_id = products_in_category.iloc[most_similar_product_idx]['product_id']
 
     # Collaborative Filtering Score
@@ -147,18 +148,20 @@ def recommend():
     # Content-Based Filtering Score
     content_scores = []
     for idx, product_id in enumerate(products_in_category['product_id']):
-        if idx < tfidf_matrix.shape[0]:  # Menggunakan shape[0] untuk mendapatkan jumlah baris matriks
+        if idx < tfidf_matrix.shape[0]:  # Ensure idx is within the range of tfidf_matrix
             content_score = cosine_similarity(input_tfidf_matrix, tfidf_matrix[idx])
             content_scores.append(content_score)
         else:
             print(f"Index {idx} is out of range for tfidf_matrix.")
 
     # Hybrid recommendation (weighted sum)
-    alpha = 0.7  # Adjust the weight based on performance
+    alpha = 0.5
     hybrid_scores = alpha * cf_score + (1 - alpha) * np.array(content_scores)
 
     # Get top N recommendations
-    N = 5
+    N = int(form_data.get('n', 5))  # Mengambil nilai n dari form, defaultnya 5 jika tidak ada
+    if len(products_in_category) < N:
+        N = len(products_in_category)  # Sesuaikan N jika produk yang tersedia kurang dari N
     top_n_indices = np.argsort(hybrid_scores.flatten())[::-1][:N]
     top_n_products = [products_in_category.iloc[i]['product_id'] for i in top_n_indices]
 
