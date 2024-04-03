@@ -121,7 +121,7 @@ def home():
 @app.route('/recommend', methods=['POST'])
 def recommend():
     form_data = request.form
-    category = form_data['category']  # Misalnya, 'Mask Sheet'
+    category = form_data['category']
     skin_type = form_data['skin_type']
     used_products = form_data['previous_skincare']
     incompatible_ingredients = form_data['incompatible_ingredients']
@@ -129,16 +129,13 @@ def recommend():
     input_description = f'{category} {skin_type} {used_products}'
 
     input_tfidf_matrix = tfidf.transform([input_description])
-
     input_cosine_sim = cosine_similarity(input_tfidf_matrix, tfidf_matrix)
 
-    # Filter products based on category
     category_id = category_to_category_encoded[category]
     products_in_category = data[data['category_id'] == category_id]
 
-    # Get the top N most similar products based on cosine similarity
-    N = int(form_data.get('n', 5)) 
-    top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1][:N]
+    # Get top 5 most similar products based on cosine similarity
+    top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1][:5]
     top_n_similar_product_ids = products_in_category.iloc[top_n_similar_products_idx]['product_id'].tolist()
 
     # Collaborative Filtering Score
@@ -175,7 +172,11 @@ def recommend():
     top_n_products_info = top_n_products_info.drop_duplicates(subset=['product_id'])  # Remove duplicates
     top_n_products_info = top_n_products_info.values.tolist()
 
-    return render_template('recommendations.html', recommendations=top_n_products_info)
+    # Ambil daftar kategori
+    categories = data['subcategory'].unique().tolist()
+
+    # Render template index.html dengan data rekomendasi
+    return render_template('index.html', categories=categories, recommendations=top_n_products_info)
 
 if __name__ == '__main__':
     app.run(debug=True)
