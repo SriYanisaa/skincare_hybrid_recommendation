@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skincare Recommendation</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Pastikan jQuery di sini -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <style>
+        .card {
+            width: 80%;
+            height: 100%;
+            display: flex; /* Mengaktifkan flexbox */
+            flex-direction: column; /* Menetapkan arah kolom */
+            justify-content: center; /* Mengatur konten ke tengah secara vertikal */
+            align-items: center; /* Mengatur konten ke tengah secara horizontal */
+        }
+        .card-img-top {
+            width: 200px; 
+            height: 200px; 
+            object-fit: cover; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Skincare Recommendation System</h2>
+    <form method="POST" action="/recommend">
+        <div class="form-group">
+            <label for="category">Kategori:</label>
+            <select class="form-control" id="category" name="category" required>
+                <option value="" disabled selected>Pilih Kategori</option>
+                {% for category in categories %}
+                <option value="{{ category }}">{{ category }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="skin_type">Jenis Kulit:</label>
+            <input type="text" class="form-control" id="skin_type" name="skin_type" required>
+        </div>
+        <div class="form-group">
+            <label for="previous_skincare">Skincare yang Digunakan Sebelumnya:</label>
+            <input type="text" class="form-control" id="previous_skincare" name="previous_skincare" required>
+        </div>
+        <div class="form-group">
+            <label for="incompatible_ingredients">Kandungan yang Tidak Cocok:</label>
+            <input type="text" class="form-control" id="incompatible_ingredients" name="incompatible_ingredients" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Get Recommendations</button>
+    </form>
+
+    <div class="mt-3">
+        <i class="fas fa-filter" id="filter_icon" onclick="toggleFilterOptions()"></i>
+    </div>
+
+    <div class="mt-5">
+        <div class="row" id="recommendations">
+            {% for recommendation in recommendations %}
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm">
+                    <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ recommendation[1] }}</h5>
+                        <p class="card-text">Brand: {{ recommendation[2] }}</p>
+                        <p class="card-text">Price: {{ recommendation[4] }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Filter Modal -->
+<div class="modal fade" id="filterModal" tabindex="-1" role="dialog" aria-labelledby="filterModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="filterModalLabel">Pilihan Filter</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" value="show_top_5" id="show_top_5" name="show_option" checked>
+                    <label class="form-check-label" for="show_top_5">
+                        Tampilkan Top 5 Rekomendasi
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" value="show_all" id="show_all" name="show_option">
+                    <label class="form-check-label" for="show_all">
+                        Tampilkan Seluruh Rekomendasi
+                    </label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="filterRecommendations()">Apply</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to toggle filter options visibility
+    function toggleFilterOptions() {
+        $('#filterModal').modal('toggle');
+    }
+
+    // Function to filter recommendations
+    function filterRecommendations() {
+        var selectedOption = $("input[name='show_option']:checked").val();
+        $.ajax({
+            url: '/filter_recommendations',
+            type: 'POST',
+            data: { show_option: selectedOption },
+            success: function(response) {
+                // Update recommendations with filtered results
+                updateRecommendations(response);
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+
+    // Function to update recommendations on the page
+    function updateRecommendations(recommendations) {
+        // Clear existing recommendations
+        $('#recommendations').empty();
+        // Append filtered recommendations
+        recommendations.forEach(function(recommendation) {
+            $('#recommendations').append(`
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="${recommendation[3]}" class="card-img-top" alt="Product Image">
+                        <div class="card-body">
+                            <h5 class="card-title">${recommendation[1]}</h5>
+                            <p class="card-text">Brand: ${recommendation[2]}</p>
+                            <p class="card-text">Price: ${recommendation[4]}</p>
+                        </div>
+                    </div>
+                </div>
+            `);
+        });
+    }
+</script>
+
+</body>
+</html>
