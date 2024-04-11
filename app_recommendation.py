@@ -146,16 +146,18 @@ def recommend():
     all_skin_products = top_n_similar_products[top_n_similar_products['description_processed'].str.contains('semua jenis kulit', case=False)]
     all_skin_product_ids = all_skin_products['product_id'].tolist()
 
-    # Add products suitable for "All Skin Types" to recommendations before shuffling and truncating
-    if all_skin_product_ids:
-        top_n_similar_product_ids += all_skin_product_ids
-
     # Shuffle the recommended products
     np.random.shuffle(top_n_similar_product_ids)
 
     # Ensure that we have at most 5 recommendations from the same category
     top_n_similar_product_ids += top_n_similar_products_in_category['product_id'].tolist()
-    top_n_similar_product_ids = top_n_similar_product_ids[:5]
+    top_n_similar_product_ids = list(set(top_n_similar_product_ids))[:5]
+
+    # Ensure that we have at least 5 recommendations
+    if len(top_n_similar_product_ids) < 5:
+        remaining_products = 5 - len(top_n_similar_product_ids)
+        additional_products = skincare_data_unique['product_id'].sample(remaining_products).tolist()
+        top_n_similar_product_ids += additional_products
 
     # Collaborative Filtering Score
     category_input_cnn = np.array([category_id])
