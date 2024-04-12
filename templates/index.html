@@ -50,30 +50,6 @@
         <button type="submit" class="btn btn-primary">Get Recommendations</button>
     </form>
 
-    <div class="container mt-3">
-        <form id="filterForm">
-            <label>Show:</label>
-            <select id="filterSelect" name="filterSelect">
-                <option value="5" selected>Show Top 5 Recommendations</option>
-                <option value="all">Show All Recommendations</option>
-            </select>
-        </form>
-    </div>
-
-    <script>
-        document.getElementById('filterSelect').addEventListener('change', function() {
-            var filterValue = this.value;
-            var recommendations = document.querySelectorAll('.recommendation');
-            recommendations.forEach(function(recommendation) {
-                if (filterValue === '5') {
-                    recommendation.style.display = 'block';
-                } else if (filterValue === 'all') {
-                    recommendation.style.display = 'none';
-                }
-            });
-        });
-    </script>
-
     <!-- Recommendations Section -->
     <div class="mt-5">
         <div class="row">
