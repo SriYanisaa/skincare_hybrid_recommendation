@@ -1,26 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skincare Recommendation</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .card {
-            width: 80%;
-            height: 100%;
-            display: flex; /* Mengaktifkan flexbox */
-            flex-direction: column; /* Menetapkan arah kolom */
-            justify-content: center; /* Mengatur konten ke tengah secara vertikal */
-            align-items: center; /* Mengatur konten ke tengah secara horizontal */
-        }
-        .card-img-top {
-            width: 200px; 
-            height: 200px; 
-            object-fit: cover; 
-        }
-    </style>
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Skincare Recommendation</title>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome for stars -->
+        <style>
+            .card {
+                width: 80%;
+                height: 100%;
+                display: flex; /* Activate flexbox */
+                flex-direction: column; /* Set column direction */
+                justify-content: center; /* Align content vertically */
+                align-items: center; /* Align content horizontally */
+            }
+            .card-img-top {
+                width: 200px; 
+                height: 200px; 
+                object-fit: cover; 
+            }
+            .rating-popup {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-color: white;
+                padding: 20px;
+                border: 1px solid #ccc;
+                border-radius: 5px;
+                z-index: 1000;
+                display: none;
+            }
+            .rating-popup input[type="radio"] {
+                display: none;
+            }
+            .rating-popup label {
+                font-size: 24px;
+                cursor: pointer;
+                color: #ccc;
+                transition: color 0.3s;
+            }
+            .rating-popup label:hover,
+            .rating-popup input[type="radio"]:checked ~ label {
+                color: #FFD700;
+            }
+        </style>
+    </head>
 <body>
 
 <div class="container mt-5">
@@ -61,6 +87,13 @@
                         <h5 class="card-title">{{ recommendation[1] }}</h5>
                         <p class="card-text">Brand: {{ recommendation[2] }}</p>
                         <p class="card-text">Price: {{ recommendation[4] }}</p>
+                        <div class="rating" id="rating-{{ recommendation[0] }}">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,5 +102,69 @@
     </div>
 </div>
 
+<div class="rating-popup" id="rating-popup">
+    <input type="radio" id="star1" name="rating" value="1">
+    <label for="star1">&#9733;</label>
+    <input type="radio" id="star2" name="rating" value="2">
+    <label for="star2">&#9733;</label>
+    <input type="radio" id="star3" name="rating" value="3">
+    <label for="star3">&#9733;</label>
+    <input type="radio" id="star4" name="rating" value="4">
+    <label for="star4">&#9733;</label>
+    <input type="radio" id="star5" name="rating" value="5">
+    <label for="star5">&#9733;</label>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
+<script>
+    // Show rating popup when clicking on a star
+    $('.rating i').click(function() {
+        var productId = $(this).parent().attr('id').split('-')[1];
+        $('#rating-popup').data('productId', productId).fadeIn();
+        $('#rating-popup input[type="radio"]').prop('checked', false); // Reset rating to default
+    });
+
+    // Hide rating popup when clicking outside of it
+    $(document).mouseup(function(e) {
+        var container = $("#rating-popup");
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            container.fadeOut();
+            // Reset rating to default when popup is closed
+            $('#rating-popup input[type="radio"]').prop('checked', false); 
+        }
+    });
+
+    // Save rating when clicking on a star in the popup
+    $('#rating-popup input[type="radio"]').change(function() {
+        var productId = $('#rating-popup').data('productId');
+        var rating = $(this).val();
+        
+        // Here you can send an AJAX request to save the rating
+        // Example:
+        $.ajax({
+            url: '/save_rating',
+            type: 'POST',
+            data: { product_id: productId, rating: rating },
+            success: function(response) {
+                alert('Rating saved successfully!');
+                $('#rating-popup').fadeOut();
+                // Update the color of stars on the card based on the selected rating
+                $('#rating-' + productId + ' i').css('color', '#ccc'); // Reset all stars to default color
+                $('#rating-' + productId + ' i:lt(' + rating + ')').css('color', '#FFD700'); // Update color of selected stars
+            },
+            error: function(error) {
+                alert('Failed to save rating.');
+                $('#rating-popup').fadeOut();
+            }
+        });
+
+        // For demonstration purpose, just show an alert
+        alert('Rating saved successfully!');
+        $('#rating-popup').fadeOut();
+        // Update the color of stars on the card based on the selected rating
+        $('#rating-' + productId + ' i').css('color', '#ccc'); // Reset all stars to default color
+        $('#rating-' + productId + ' i:lt(' + rating + ')').css('color', '#FFD700'); // Update color of selected stars
+    });
+</script>
 </body>
 </html>
