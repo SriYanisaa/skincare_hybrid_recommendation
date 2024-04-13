@@ -118,7 +118,6 @@ def home():
     categories = data['subcategory'].unique().tolist()  # Ambil daftar kategori
     return render_template('index.html', categories=categories)
 
-
 @app.route('/recommend', methods=['POST'])
 def recommend():
     form_data = request.form
@@ -194,7 +193,7 @@ def recommend():
 
     # Convert indices to product names and brands
     top_n_products_info = data.loc[data['product_id'].isin(top_n_product_ids),
-                                    ['product_id', 'product_name', 'brand', 'image_url', 'price']]
+                                ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
     top_n_products_info = top_n_products_info.drop_duplicates(subset=['product_id'])
     top_n_products_info = top_n_products_info.values.tolist()
 
@@ -203,19 +202,6 @@ def recommend():
 
     # Render template index.html dengan data rekomendasi
     return render_template('index.html', categories=categories, recommendations=top_n_products_info)
-
-# Define a dictionary to store ratings temporarily
-ratings = {}
-
-@app.route('/save_rating', methods=['POST'])
-def save_rating():
-    product_id = request.form['product_id']
-    rating = request.form['rating']
-    
-    # Store the rating in the ratings dictionary
-    ratings[product_id] = rating
-    
-    return 'Rating saved successfully!'
 
 if __name__ == '__main__':
     app.run(debug=True)
