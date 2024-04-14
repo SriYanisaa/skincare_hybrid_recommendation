@@ -89,6 +89,19 @@
           <div id="productDetails">
             <!-- Product details will be dynamically filled here -->
           </div>
+          <form id="ratingForm">
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <!-- Display star icons for rating -->
+                <div class="rating">
+                    <span class="rating-star" data-rating="1">&#9733;</span>
+                    <span class="rating-star" data-rating="2">&#9733;</span>
+                    <span class="rating-star" data-rating="3">&#9733;</span>
+                    <span class="rating-star" data-rating="4">&#9733;</span>
+                    <span class="rating-star" data-rating="5">&#9733;</span>
+                </div>
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -122,6 +135,19 @@
         </div>
       `);
   });
+
+  $('.rating-star').css('color', '');
+
+  $('.rating-star').on('click', function () {
+            var rating = $(this).data('rating');
+            // Change color of stars up to the selected rating
+            $('.rating-star').css('color', ''); 
+            $('.rating-star').each(function () {
+                if ($(this).data('rating') <= rating) {
+                    $(this).css('color', 'yellow'); // Change color to yellow for selected stars
+                }
+            });
+        });
 </script>
 </body>
 </html>
