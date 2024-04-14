@@ -21,6 +21,11 @@
             height: 200px; 
             object-fit: cover; 
         }
+        .product-description {
+            overflow-y: auto;
+            max-height: none; 
+            white-space: pre-wrap;
+        }
     </style>
 </head>
 <body>
@@ -112,7 +117,7 @@
             <p><strong>Brand:</strong> ${brand}</p>
             <p><strong>Price:</strong> ${price}</p>
             <p><strong>Description:</strong></p>
-            <textarea class="form-control" rows="5" readonly>${description}</textarea>
+            <pre class="product-description">${description}</pre>
           </div>
         </div>
       `);
