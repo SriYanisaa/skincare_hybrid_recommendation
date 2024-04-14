@@ -57,7 +57,7 @@
             {% for recommendation in recommendations %}
             <div class="col-md-4 mb-4">
                 <div class="card shadow-sm">
-                    <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image" onclick="showProductDetails('{{ recommendation[1] }}', '{{ recommendation[2] }}', '{{ recommendation[3] }}', '{{ recommendation[4] }}', '{{ recommendation[5] }}')">
+                    <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image" data-toggle="modal" data-target="#productModal" data-name="{{ recommendation[1] }}" data-brand="{{ recommendation[2] }}" data-image="{{ recommendation[3] }}" data-price="{{ recommendation[4] }}" data-description="{{ recommendation[5] }}">
                     <div class="card-body">
                         <h5 class="card-title">{{ recommendation[1] }}</h5>
                         <p class="card-text">Brand: {{ recommendation[2] }}</p>
@@ -93,12 +93,17 @@
 </div>
 
 <script>
-    function showProductDetails(name, brand, image, price, description) {
-      var modalTitle = document.getElementById('productModalLabel');
-      modalTitle.innerHTML = name;
-  
-      var productDetails = document.getElementById('productDetails');
-      productDetails.innerHTML = `
+  $('#productModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var name = button.data('name');
+    var brand = button.data('brand');
+    var image = button.data('image');
+    var price = button.data('price');
+    var description = button.data('description');
+
+    var modal = $(this);
+    modal.find('.modal-title').text(name);
+    modal.find('.modal-body #productDetails').html(`
         <div class="row">
           <div class="col-md-4">
             <img src="${image}" class="img-fluid" alt="Product Image">
@@ -106,13 +111,12 @@
           <div class="col-md-8">
             <p><strong>Brand:</strong> ${brand}</p>
             <p><strong>Price:</strong> ${price}</p>
-            <p><strong>Description:</strong> ${description}</p>
+            <p><strong>Description:</strong></p>
+            <textarea class="form-control" rows="5" readonly>${description}</textarea>
           </div>
         </div>
-      `;
-  
-      $('#productModal').modal('show');
-    }
+      `);
+  });
 </script>
 </body>
 </html>
