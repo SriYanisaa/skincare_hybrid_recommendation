@@ -35,6 +35,10 @@
             margin-top: 10px; /* Jarak atas */
             margin-left: 20px; /* Jarak kiri */
         }
+        .rating-star {
+            color: #ccc; /* Warna default untuk bintang yang belum diisi */
+            cursor: pointer; /* Tambahkan pointer ketika diarahkan */
+        }
     </style>
 </head>
 <body>
@@ -76,6 +80,13 @@
                         <h5 class="card-title">{{ recommendation[1] }}</h5>
                         <p class="card-text">Brand: {{ recommendation[2] }}</p>
                         <p class="card-text">Price: {{ recommendation[4] }}</p>
+                        <div class="rating" id="rating-{{ recommendation[1] }}">
+                            <span class="rating-star" data-rating="1">&#9733;</span>
+                            <span class="rating-star" data-rating="2">&#9733;</span>
+                            <span class="rating-star" data-rating="3">&#9733;</span>
+                            <span class="rating-star" data-rating="4">&#9733;</span>
+                            <span class="rating-star" data-rating="5">&#9733;</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -105,7 +116,12 @@
       </div>
   </div>
 </div>
-
+<script>
+    $(document).ready(function() {
+        // Clear all rating data from localStorage when the page is loaded
+        localStorage.clear();
+    });
+</script>
 <script>
     $('#productModal').on('show.bs.modal', function (event) {
       var button = $(event.relatedTarget);
@@ -139,26 +155,33 @@
           </div>
         `);
   
-      // Get previous rating from localStorage if exists
-      var previousRating = localStorage.getItem('rating-' + name);
-      if (previousRating) {
-        modal.find('.rating-star').each(function () {
-          if ($(this).data('rating') <= previousRating) {
-            $(this).css('color', 'yellow');
-          }
-        });
-      }
+      // Reset all stars color
+      modal.find('.rating-star').css('color', '');
     });
   
     $(document).on('click', '.rating-star', function () {
       var rating = $(this).data('rating');
-      $(this).parent().find('.rating-star').css('color', ''); // Reset all stars color
-      $(this).prevAll('.rating-star').addBack().css('color', 'yellow'); // Color clicked and previous stars
-  
-      // Get product name
       var productName = $('#productModal .modal-title').text();
+  
       // Save rating to localStorage
       localStorage.setItem('rating-' + productName, rating);
+  
+      // Update rating on modal
+      $('#productModal .rating-star').css('color', ''); // Reset all stars color
+      $(this).prevAll('.rating-star').addBack().css('color', 'yellow'); // Color clicked and previous stars
+  
+      // Update rating on card
+      $('#rating-' + productName).empty(); // Clear previous rating
+      for (var i = 1; i <= rating; i++) {
+        $('#rating-' + productName).find('.rating-star:nth-child(' + i + ')').css('color', 'yellow'); // Color stars based on current rating
+      }
+
+      // Update rating on card product
+      var cardProduct = $('.card-body').filter(function() {
+        return $(this).find('.card-title').text() === productName;
+      });
+      cardProduct.find('.rating-star').css('color', ''); // Reset all stars color
+      cardProduct.find('.rating-star').slice(0, rating).css('color', 'yellow'); // Color stars based on current rating
     });
 </script>
 </body>
