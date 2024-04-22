@@ -103,8 +103,8 @@ class RecommenderNet(Model):
 model = RecommenderNet(num_categories, num_skincare, 50, cnn_filters=32, cnn_kernel_size=3)
 
 # Call the model to initialize it
-dummy_category_input = np.array([0])  # Provide dummy input
-dummy_product_input = np.array([0])   # Provide dummy input
+dummy_category_input = np.array([0]) 
+dummy_product_input = np.array([0]) 
 _ = model([dummy_category_input, dummy_product_input])  # Call the model
 
 # Compile the model
@@ -115,7 +115,7 @@ model.load_weights('recommender_model_cnn_weights.h5')
 
 @app.route('/')
 def home():
-    categories = data['subcategory'].unique().tolist()  # Ambil daftar kategori
+    categories = data['subcategory'].unique().tolist() 
     return render_template('index.html', categories=categories)
 
 @app.route('/recommend', methods=['POST'])
@@ -134,26 +134,20 @@ def recommend():
     category_id = category_to_category_encoded[category]
     products_in_category = data[data['category_id'] == category_id]
 
-    # Get top 5 most similar products based on cosine similarity for specific skin type
     top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1][:5]
     top_n_similar_products = skincare_data_unique.iloc[top_n_similar_products_idx]
     top_n_similar_products_in_category = top_n_similar_products[top_n_similar_products['subcategory'] == category]
 
-    # Initialize list for top_n_similar_product_ids
     top_n_similar_product_ids = []
 
-    # Check if any of the descriptions mention suitability for "All Skin Types"
     all_skin_products = top_n_similar_products[top_n_similar_products['description_processed'].str.contains('semua jenis kulit', case=False)]
     all_skin_product_ids = all_skin_products['product_id'].tolist()
 
-    # Shuffle the recommended products
     np.random.shuffle(top_n_similar_product_ids)
 
-    # Ensure that we have at most 5 recommendations from the same category
     top_n_similar_product_ids += top_n_similar_products_in_category['product_id'].tolist()
     top_n_similar_product_ids = list(set(top_n_similar_product_ids))[:5]
 
-    # Ensure that we have at least 5 recommendations
     if len(top_n_similar_product_ids) < 5:
         remaining_products = 5 - len(top_n_similar_product_ids)
         additional_products = skincare_data_unique['product_id'].sample(remaining_products).tolist()
@@ -177,7 +171,7 @@ def recommend():
             print(f"Index {idx} is out of range for tfidf_matrix.")
 
     # Hybrid recommendation (weighted sum)
-    alpha = 0.5  # Bobot untuk skor kolaboratif
+    alpha = 0.5 
     hybrid_scores = []
     for cf_score, content_score in zip(cf_scores, content_scores):
         hybrid_score = alpha * cf_score + (1 - alpha) * content_score
@@ -186,7 +180,6 @@ def recommend():
     # Convert hybrid scores to numpy array
     hybrid_scores = np.array(hybrid_scores)
 
-    # Get top N recommendations using hybrid scores
     N = 5
     top_n_indices = np.argsort(hybrid_scores.flatten())[::-1][:N]
     top_n_product_ids = [top_n_similar_products.iloc[i]['product_id'] for i in top_n_indices]
@@ -197,7 +190,6 @@ def recommend():
     top_n_products_info = top_n_products_info.drop_duplicates(subset=['product_id'])
     top_n_products_info = top_n_products_info.values.tolist()
 
-    # Ambil daftar kategori
     categories = data['subcategory'].unique().tolist()
 
     # Render template index.html dengan data rekomendasi

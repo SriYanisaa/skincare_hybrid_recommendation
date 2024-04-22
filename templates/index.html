@@ -155,7 +155,6 @@
           </div>
         `);
   
-      // Reset all stars color
       modal.find('.rating-star').css('color', '');
     });
   
@@ -163,25 +162,21 @@
       var rating = $(this).data('rating');
       var productName = $('#productModal .modal-title').text();
   
-      // Save rating to localStorage
       localStorage.setItem('rating-' + productName, rating);
   
-      // Update rating on modal
-      $('#productModal .rating-star').css('color', ''); // Reset all stars color
-      $(this).prevAll('.rating-star').addBack().css('color', 'yellow'); // Color clicked and previous stars
+      $('#productModal .rating-star').css('color', '');
+      $(this).prevAll('.rating-star').addBack().css('color', 'yellow');
   
-      // Update rating on card
-      $('#rating-' + productName).empty(); // Clear previous rating
+      $('#rating-' + productName).empty();
       for (var i = 1; i <= rating; i++) {
-        $('#rating-' + productName).find('.rating-star:nth-child(' + i + ')').css('color', 'yellow'); // Color stars based on current rating
+        $('#rating-' + productName).find('.rating-star:nth-child(' + i + ')').css('color', 'yellow'); 
       }
 
-      // Update rating on card product
       var cardProduct = $('.card-body').filter(function() {
         return $(this).find('.card-title').text() === productName;
       });
-      cardProduct.find('.rating-star').css('color', ''); // Reset all stars color
-      cardProduct.find('.rating-star').slice(0, rating).css('color', 'yellow'); // Color stars based on current rating
+      cardProduct.find('.rating-star').css('color', '');
+      cardProduct.find('.rating-star').slice(0, rating).css('color', 'yellow'); 
     });
 </script>
 </body>
