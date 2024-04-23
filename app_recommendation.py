@@ -168,11 +168,11 @@ def recommend():
 
     N = len(top_n_similar_product_ids)  # Menampilkan semua produk yang direkomendasikan
     top_n_indices = np.argsort(hybrid_scores.flatten())[::-1][:N]
-    top_n_product_ids = top_n_similar_products_in_category['product_id'].tolist()
+    top_n_product_ids = [top_n_similar_products.iloc[i]['product_id'] for i in top_n_indices]
 
-    # Convert indices to product names and brands
-    top_n_products_info = data.loc[data['product_id'].isin(top_n_product_ids),
-                            ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
+    # Filter out products that do not belong to the selected category
+    top_n_products_info = data.loc[data['product_id'].isin(top_n_product_ids) & (data['subcategory'] == category),
+                                ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
     top_n_products_info = top_n_products_info.drop_duplicates(subset=['product_id'])
     top_n_products_info = top_n_products_info.values.tolist()
 
