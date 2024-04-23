@@ -163,12 +163,17 @@ def recommend():
         hybrid_score = alpha * cf_score + (1 - alpha) * content_score
         hybrid_scores.append(hybrid_score)
 
+     # Print hybrid scores
+    print("Hybrid Scores:")
+    for idx, score in enumerate(hybrid_scores):
+        print(f"Product ID: {top_n_similar_product_ids[idx]}, Hybrid Score: {score}")
+
     # Convert hybrid scores to numpy array
     hybrid_scores = np.array(hybrid_scores)
+    sorted_indices = np.argsort(hybrid_scores.flatten())[::-1]
 
-    N = len(top_n_similar_product_ids)  # Menampilkan semua produk yang direkomendasikan
-    top_n_indices = np.argsort(hybrid_scores.flatten())[::-1][:N]
-    top_n_product_ids = [top_n_similar_products.iloc[i]['product_id'] for i in top_n_indices]
+    N = len(top_n_similar_product_ids)
+    top_n_product_ids = [top_n_similar_product_ids[i] for i in sorted_indices[:N]]
 
     # Filter out products that do not belong to the selected category
     top_n_products_info = data.loc[data['product_id'].isin(top_n_product_ids) & (data['subcategory'] == category),
