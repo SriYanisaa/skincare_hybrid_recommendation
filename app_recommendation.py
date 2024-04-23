@@ -8,6 +8,7 @@ from keras.layers import Embedding, Conv1D, BatchNormalization, Dense, GlobalMax
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from sklearn.model_selection import train_test_split
+from flask import jsonify
 
 app = Flask(__name__)
 
@@ -132,26 +133,11 @@ def recommend():
     input_cosine_sim = cosine_similarity(input_tfidf_matrix, tfidf_matrix)
 
     category_id = category_to_category_encoded[category]
-    products_in_category = data[data['category_id'] == category_id]
-
-    top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1][:5]
+    top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1]
     top_n_similar_products = skincare_data_unique.iloc[top_n_similar_products_idx]
     top_n_similar_products_in_category = top_n_similar_products[top_n_similar_products['subcategory'] == category]
 
-    top_n_similar_product_ids = []
-
-    all_skin_products = top_n_similar_products[top_n_similar_products['description_processed'].str.contains('semua jenis kulit', case=False)]
-    all_skin_product_ids = all_skin_products['product_id'].tolist()
-
-    np.random.shuffle(top_n_similar_product_ids)
-
-    top_n_similar_product_ids += top_n_similar_products_in_category['product_id'].tolist()
-    top_n_similar_product_ids = list(set(top_n_similar_product_ids))[:5]
-
-    if len(top_n_similar_product_ids) < 5:
-        remaining_products = 5 - len(top_n_similar_product_ids)
-        additional_products = skincare_data_unique['product_id'].sample(remaining_products).tolist()
-        top_n_similar_product_ids += additional_products
+    top_n_similar_product_ids = top_n_similar_products_in_category['product_id'].tolist()
 
     # Collaborative Filtering Score
     category_input_cnn = np.array([category_id])
@@ -180,20 +166,18 @@ def recommend():
     # Convert hybrid scores to numpy array
     hybrid_scores = np.array(hybrid_scores)
 
-    N = 5
+    N = len(top_n_similar_product_ids)  # Menampilkan semua produk yang direkomendasikan
     top_n_indices = np.argsort(hybrid_scores.flatten())[::-1][:N]
-    top_n_product_ids = [top_n_similar_products.iloc[i]['product_id'] for i in top_n_indices]
+    top_n_product_ids = top_n_similar_products_in_category['product_id'].tolist()
 
     # Convert indices to product names and brands
     top_n_products_info = data.loc[data['product_id'].isin(top_n_product_ids),
-                                ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
+                            ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
     top_n_products_info = top_n_products_info.drop_duplicates(subset=['product_id'])
     top_n_products_info = top_n_products_info.values.tolist()
 
-    categories = data['subcategory'].unique().tolist()
-
     # Render template index.html dengan data rekomendasi
-    return render_template('index.html', categories=categories, recommendations=top_n_products_info)
+    return render_template('index.html', recommendations=top_n_products_info)
 
 if __name__ == '__main__':
     app.run(debug=True)
