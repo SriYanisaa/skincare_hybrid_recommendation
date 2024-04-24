@@ -161,25 +161,28 @@ def recommend():
     hybrid_scores = []
     for cf_score, content_score in zip(cf_scores, content_scores):
         hybrid_score = alpha * cf_score + (1 - alpha) * content_score
-        hybrid_scores.append(hybrid_score)
+        hybrid_scores.append(hybrid_score[0][0])
 
      # Print hybrid scores
     print("Hybrid Scores:")
     for idx, score in enumerate(hybrid_scores):
         print(f"Product ID: {top_n_similar_product_ids[idx]}, Hybrid Score: {score}")
 
-    # Convert hybrid scores to numpy array
-    hybrid_scores = np.array(hybrid_scores)
-    sorted_indices = np.argsort(hybrid_scores.flatten())[::-1]
+    # # Convert hybrid scores to numpy array
+    # hybrid_scores = np.array(hybrid_scores)
+    product_scores_with_index = [(score, idx) for idx, score in enumerate(hybrid_scores)]
+    sorted_product_scores_with_index = sorted(product_scores_with_index, key=lambda x: x[0], reverse=True)
 
     N = len(top_n_similar_product_ids)
-    top_n_product_ids = [top_n_similar_product_ids[i] for i in sorted_indices[:N]]
+    top_n_product_indices = [index for _, index in sorted_product_scores_with_index[:N]]
+    top_n_product_ids = [top_n_similar_product_ids[i] for i in top_n_product_indices]
 
-    # Filter out products that do not belong to the selected category
-    top_n_products_info = data.loc[data['product_id'].isin(top_n_product_ids) & (data['subcategory'] == category),
+    top_n_products_info = []
+    for idx, product_id in enumerate(top_n_similar_product_ids):
+        product_info = data.loc[(data['product_id'] == product_id) & (data['subcategory'] == category),
                                 ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
-    top_n_products_info = top_n_products_info.drop_duplicates(subset=['product_id'])
-    top_n_products_info = top_n_products_info.values.tolist()
+        product_info = product_info.values.tolist()[0]
+        top_n_products_info.append(product_info)
 
     # Render template index.html dengan data rekomendasi
     return render_template('index.html', recommendations=top_n_products_info)
