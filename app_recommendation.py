@@ -184,8 +184,10 @@ def recommend():
         product_info = product_info.values.tolist()[0]
         top_n_products_info.append(product_info)
 
+    categories = data['subcategory'].unique().tolist()
+
     # Render template index.html dengan data rekomendasi
-    return render_template('index.html', recommendations=top_n_products_info)
+    return render_template('index.html', categories=categories, recommendations=top_n_products_info)
 
 if __name__ == '__main__':
     app.run(debug=True)
