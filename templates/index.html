@@ -11,10 +11,10 @@
         .card {
             width: 80%;
             height: 100%;
-            display: flex; /* Mengaktifkan flexbox */
-            flex-direction: column; /* Menetapkan arah kolom */
-            justify-content: center; /* Mengatur konten ke tengah secara vertikal */
-            align-items: center; /* Mengatur konten ke tengah secara horizontal */
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center; 
         }
         .card-img-top {
             width: 200px; 
@@ -27,17 +27,17 @@
             white-space: pre-wrap;
         }
         .rating {
-            margin-top: 5px; /* Jarak antara gambar dan rating */
-            margin-left: 20px; /* Jarak rating dari sebelah kiri dengan margin */
-            text-align: left /* Posisi rating ke kiri */
+            margin-top: 5px; 
+            margin-left: 20px; 
+            text-align: left 
         }
         .your-rating {
-            margin-top: 10px; /* Jarak atas */
-            margin-left: 20px; /* Jarak kiri */
+            margin-top: 10px; 
+            margin-left: 20px; 
         }
         .rating-star {
-            color: #ccc; /* Warna default untuk bintang yang belum diisi */
-            cursor: pointer; /* Tambahkan pointer ketika diarahkan */
+            color: #ccc; 
+            cursor: pointer; 
         }
     </style>
 </head>
@@ -127,29 +127,24 @@
 </div>
 <script>
     $(document).ready(function() {
-        // Memeriksa apakah ada nilai di Local Storage untuk setiap input dan mengisinya kembali
         $('#category').val(localStorage.getItem('category'));
         $('#skin_type').val(localStorage.getItem('skin_type'));
         $('#previous_skincare').val(localStorage.getItem('previous_skincare'));
         $('#incompatible_ingredients').val(localStorage.getItem('incompatible_ingredients'));
         
-        // Clear all rating data from localStorage when the page is loaded
         localStorage.clear();
         
-        // Trigger recommendation update when the dropdown value changes
         $('#topN').change(function() {
             updateRecommendations();
         });
     });
 
     function updateRecommendations() {
-        var topN = parseInt($('#topN').val()); // Get the selected top N value
-        var recommendations = $('.card'); // Get all recommendation cards
+        var topN = parseInt($('#topN').val());
+        var recommendations = $('.card'); 
         
-        // Hide all recommendations
         recommendations.hide();
         
-        // Show only the top N recommendations
         for (var i = 0; i < topN; i++) {
             $(recommendations[i]).show();
         }
@@ -157,7 +152,6 @@
 
     updateRecommendations();
 
-    // Menyimpan nilai input ke dalam Local Storage saat form disubmit
     $('form').submit(function() {
         localStorage.setItem('category', $('#category').val());
         localStorage.setItem('skin_type', $('#skin_type').val());
