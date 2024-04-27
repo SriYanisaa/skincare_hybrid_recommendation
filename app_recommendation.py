@@ -112,7 +112,7 @@ _ = model([dummy_category_input, dummy_product_input])  # Call the model
 model.compile(optimizer='adam', loss='mse')
 
 # Load weights after compiling the model
-model.load_weights('recommender_model_cnn_weights.h5') 
+model.load_weights('model_weights_checkpoint.h5') 
 
 @app.route('/')
 def home():
@@ -186,7 +186,6 @@ def recommend():
 
     categories = data['subcategory'].unique().tolist()
 
-    # Render template index.html dengan data rekomendasi
     return render_template('index.html', categories=categories, recommendations=top_n_products_info)
 
 if __name__ == '__main__':

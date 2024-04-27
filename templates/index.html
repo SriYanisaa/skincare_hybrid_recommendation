@@ -127,6 +127,12 @@
 </div>
 <script>
     $(document).ready(function() {
+        // Memeriksa apakah ada nilai di Local Storage untuk setiap input dan mengisinya kembali
+        $('#category').val(localStorage.getItem('category'));
+        $('#skin_type').val(localStorage.getItem('skin_type'));
+        $('#previous_skincare').val(localStorage.getItem('previous_skincare'));
+        $('#incompatible_ingredients').val(localStorage.getItem('incompatible_ingredients'));
+        
         // Clear all rating data from localStorage when the page is loaded
         localStorage.clear();
         
@@ -150,6 +156,14 @@
     }
 
     updateRecommendations();
+
+    // Menyimpan nilai input ke dalam Local Storage saat form disubmit
+    $('form').submit(function() {
+        localStorage.setItem('category', $('#category').val());
+        localStorage.setItem('skin_type', $('#skin_type').val());
+        localStorage.setItem('previous_skincare', $('#previous_skincare').val());
+        localStorage.setItem('incompatible_ingredients', $('#incompatible_ingredients').val());
+    });
 </script>
 <script>
     $('#productModal').on('show.bs.modal', function (event) {
