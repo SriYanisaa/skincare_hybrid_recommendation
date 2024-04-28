@@ -8,9 +8,10 @@ from keras.layers import Embedding, Conv1D, BatchNormalization, Dense, GlobalMax
 from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from sklearn.model_selection import train_test_split
-from flask import jsonify
+from flask_caching import Cache
 
 app = Flask(__name__)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # Load data
 data = pd.read_csv('data_skincare_for_modeling_2_2.csv')
@@ -115,6 +116,7 @@ model.compile(optimizer='adam', loss='mse')
 model.load_weights('model_weights_checkpoint.h5') 
 
 @app.route('/')
+@cache.cached(timeout=50)
 def home():
     categories = data['subcategory'].unique().tolist() 
     return render_template('index.html', categories=categories)
