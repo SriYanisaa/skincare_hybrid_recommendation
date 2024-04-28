@@ -191,8 +191,14 @@
             </div>
           </div>
         `);
+
+        var rating = localStorage.getItem('rating-' + name);
+        if (rating) {
+            modal.find('.rating-star').css('color', '');
+            modal.find('.rating-star').slice(0, rating).css('color', 'yellow');
+        }
   
-      modal.find('.rating-star').css('color', '');
+    //   modal.find('.rating-star').css('color', '');
     });
   
     $(document).on('click', '.rating-star', function () {
