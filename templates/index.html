@@ -142,191 +142,190 @@
     </style>
 </head>
 <body>
-<div class="container mt-5">
-    <div class="img_banner">
-        <!-- <img src="https://png.pngtree.com/png-clipart/20230501/original/pngtree-skin-care-transparent-face-cream-png-image_9129633.png" width="150" height="100" class="satu"> -->
-        <h2 class="mb-4">Skincare Recommendation System</h2>
-        <img src="https://png.pngtree.com/png-clipart/20230501/original/pngtree-3d-skin-care-products-with-texture-png-image_9129534.png" width="100" height="100" class="satu">
-    </div>
-    <div class="cont_form">
-        <form method="POST" action="/recommend">
-            <div class="form-group">
-                <label for="category">Kategori:</label>
-                <select class="form-control" id="category" name="category" required>
-                    <option value="" disabled selected>Pilih Kategori</option>
-                    {% for category in categories %}
-                    <option value="{{ category }}">{{ category }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="skin_type">Jenis Kulit:</label>
-                <input type="text" class="form-control" id="skin_type" name="skin_type" placeholder="Masukkan Jenis Kulit Anda" required>
-            </div>
-            <div class="form-group">
-                <label for="previous_skincare">Skincare yang Digunakan Sebelumnya:</label>
-                <input type="text" class="form-control" id="previous_skincare" placeholder="Masukkan Nama Produk Yang Pernah Anda Gunakan" name="previous_skincare" required>
-            </div>
-            <div class="form-group">
-                <label for="incompatible_ingredients">Kandungan yang Tidak Cocok:</label>
-                <input type="text" class="form-control" id="incompatible_ingredients" name="incompatible_ingredients" placeholder="Masukkan Nama Kandungan Spesifik" required>
-            </div>
-            <button type="submit" class="btn btn_rec">Get Recommendations</button>
-        </form>
-    </div>
+    <div class="container mt-5">
+        <div class="img_banner">
+            <!-- <img src="https://png.pngtree.com/png-clipart/20230501/original/pngtree-skin-care-transparent-face-cream-png-image_9129633.png" width="150" height="100" class="satu"> -->
+            <h2 class="mb-4">Skincare Recommendation System</h2>
+            <img src="https://png.pngtree.com/png-clipart/20230501/original/pngtree-3d-skin-care-products-with-texture-png-image_9129534.png" width="100" height="100" class="satu">
+        </div>
+        <div class="cont_form">
+            <form method="POST" action="/recommend">
+                <div class="form-group">
+                    <label for="category">Kategori:</label>
+                    <select class="form-control" id="category" name="category" required>
+                        <option value="" disabled selected>Pilih Kategori</option>
+                        {% for category in categories %}
+                        <option value="{{ category }}">{{ category }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="skin_type">Jenis Kulit:</label>
+                    <input type="text" class="form-control" id="skin_type" name="skin_type" placeholder="Masukkan Jenis Kulit Anda" required>
+                </div>
+                <div class="form-group">
+                    <label for="previous_skincare">Skincare yang Digunakan Sebelumnya:</label>
+                    <input type="text" class="form-control" id="previous_skincare" placeholder="Masukkan Nama Produk Yang Pernah Anda Gunakan" name="previous_skincare" required>
+                </div>
+                <div class="form-group">
+                    <label for="incompatible_ingredients">Kandungan yang Tidak Cocok:</label>
+                    <input type="text" class="form-control" id="incompatible_ingredients" name="incompatible_ingredients" placeholder="Masukkan Nama Kandungan Spesifik" required>
+                </div>
+                <button type="submit" class="btn btn_rec">Get Recommendations</button>
+            </form>
+        </div>
 
-    <div class="mt-3">
-        <label for="topN">Show Top N Recommendations:</label>
-        <select id="topN" class="form-control">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15">15</option>
-        </select>
-    </div>
+        <div class="mt-3">
+            <label for="topN">Show Top N Recommendations:</label>
+            <select id="topN" class="form-control">
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="15">15</option>
+            </select>
+        </div>
 
-    <!-- Recommendations Section -->
-    <div class="mt-5" id="recommendationSection">
-        <div class="row">
-            {% for recommendation in recommendations %}
-            <div class="col-md-4 mb-4">
-                <div class="card_new">
-                    <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image" data-toggle="modal" data-target="#productModal" data-name="{{ recommendation[1] }}" data-brand="{{ recommendation[2] }}" data-image="{{ recommendation[3] }}" data-price="{{ recommendation[4] }}" data-description="{{ recommendation[5] }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ recommendation[1] }}</h5>
-                        <p class="card-text">Brand: {{ recommendation[2] }}</p>
-                        <p class="card-text">Price: {{ recommendation[4] }}</p>
-                        <div class="rating" id="rating-{{ recommendation[1] }}">
-                            <span class="rating-star" data-rating="1">&#9733;</span>
-                            <span class="rating-star" data-rating="2">&#9733;</span>
-                            <span class="rating-star" data-rating="3">&#9733;</span>
-                            <span class="rating-star" data-rating="4">&#9733;</span>
-                            <span class="rating-star" data-rating="5">&#9733;</span>
+        <!-- Recommendations Section -->
+        <div class="mt-5" id="recommendationSection">
+            <div class="row">
+                {% for recommendation in recommendations %}
+                <div class="col-md-4 mb-4">
+                    <div class="card_new">
+                        <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image" data-toggle="modal" data-target="#productModal" data-name="{{ recommendation[1] }}" data-brand="{{ recommendation[2] }}" data-image="{{ recommendation[3] }}" data-price="{{ recommendation[4] }}" data-description="{{ recommendation[5] }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ recommendation[1] }}</h5>
+                            <p class="card-text">Brand: {{ recommendation[2] }}</p>
+                            <p class="card-text">Price: {{ recommendation[4] }}</p>
+                            <div class="rating" id="rating-{{ recommendation[1] }}">
+                                <span class="rating-star" data-rating="1">&#9733;</span>
+                                <span class="rating-star" data-rating="2">&#9733;</span>
+                                <span class="rating-star" data-rating="3">&#9733;</span>
+                                <span class="rating-star" data-rating="4">&#9733;</span>
+                                <span class="rating-star" data-rating="5">&#9733;</span>
+                            </div>
                         </div>
                     </div>
                 </div>
+                {% endfor %}
             </div>
-            {% endfor %}
         </div>
     </div>
-</div>
 
-<!-- Modal -->
-<div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-      <div class="modal-content">
-          <div class="modal-header">
-              <h5 class="modal-title" id="productModalLabel">Product Details</h5>
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <span aria-hidden="true">&times;</span>
-              </button>
-          </div>
-          <div class="modal-body">
-              <div id="productDetails" class="row">
-                  <!-- Product details will be dynamically filled here -->
-              </div>
-          </div>
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </div>
-      </div>
-  </div>
-</div>
-<script>
-    $(document).ready(function() {
-        $('#category').val(localStorage.getItem('category'));
-        $('#skin_type').val(localStorage.getItem('skin_type'));
-        $('#previous_skincare').val(localStorage.getItem('previous_skincare'));
-        $('#incompatible_ingredients').val(localStorage.getItem('incompatible_ingredients'));
-        
-        localStorage.clear();
-        
-        $('#topN').change(function() {
-            updateRecommendations();
+    <!-- Modal -->
+    <div class="modal fade" id="productModal" tabindex="-1" role="dialog" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="productModalLabel">Product Details</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="productDetails" class="row">
+                        <!-- Product details will be dynamically filled here -->
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $('#category').val(localStorage.getItem('category'));
+            $('#skin_type').val(localStorage.getItem('skin_type'));
+            $('#previous_skincare').val(localStorage.getItem('previous_skincare'));
+            $('#incompatible_ingredients').val(localStorage.getItem('incompatible_ingredients'));
+            
+            localStorage.clear();
+            
+            $('#topN').change(function() {
+                updateRecommendations();
+            });
         });
-    });
 
-    function updateRecommendations() {
-        var topN = parseInt($('#topN').val());
-        var recommendations = $('.card_new'); 
-        
-        recommendations.hide();
-        
-        for (var i = 0; i < topN; i++) {
-            $(recommendations[i]).show();
+        function updateRecommendations() {
+            var topN = parseInt($('#topN').val());
+            var recommendations = $('.card_new'); 
+            
+            recommendations.hide();
+            
+            for (var i = 0; i < topN; i++) {
+                $(recommendations[i]).show();
+            }
         }
-    }
 
-    updateRecommendations();
+        updateRecommendations();
 
-    $('form').submit(function() {
-        localStorage.setItem('category', $('#category').val());
-        localStorage.setItem('skin_type', $('#skin_type').val());
-        localStorage.setItem('previous_skincare', $('#previous_skincare').val());
-        localStorage.setItem('incompatible_ingredients', $('#incompatible_ingredients').val());
-    });
-</script>
-<script>
-    $('#productModal').on('show.bs.modal', function (event) {
-      var button = $(event.relatedTarget);
-      var name = button.data('name');
-      var brand = button.data('brand');
-      var image = button.data('image');
-      var price = button.data('price');
-      var description = button.data('description');
-  
-      var modal = $(this);
-      modal.find('.modal-title').text(name);
-      modal.find('.modal-body #productDetails').html(`
-          <div class="row">
-            <div class="col-md-4">
-              <img src="${image}" class="img-fluid" alt="Product Image">
-              <p class="your-rating"><strong>Penilaian Anda:</strong></p>
-              <div class="your-rating">
-                  <span class="rating-star" data-rating="1">&#9733;</span>
-                  <span class="rating-star" data-rating="2">&#9733;</span>
-                  <span class="rating-star" data-rating="3">&#9733;</span>
-                  <span class="rating-star" data-rating="4">&#9733;</span>
-                  <span class="rating-star" data-rating="5">&#9733;</span>
-              </div>
+        $('form').submit(function() {
+            localStorage.setItem('category', $('#category').val());
+            localStorage.setItem('skin_type', $('#skin_type').val());
+            localStorage.setItem('previous_skincare', $('#previous_skincare').val());
+            localStorage.setItem('incompatible_ingredients', $('#incompatible_ingredients').val());
+        });
+    </script>
+    <script>
+        $('#productModal').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var name = button.data('name');
+        var brand = button.data('brand');
+        var image = button.data('image');
+        var price = button.data('price');
+        var description = button.data('description');
+    
+        var modal = $(this);
+        modal.find('.modal-title').text(name);
+        modal.find('.modal-body #productDetails').html(`
+            <div class="row">
+                <div class="col-md-4">
+                <img src="${image}" class="img-fluid" alt="Product Image">
+                <p class="your-rating"><strong>Penilaian Anda:</strong></p>
+                <div class="your-rating">
+                    <span class="rating-star" data-rating="1">&#9733;</span>
+                    <span class="rating-star" data-rating="2">&#9733;</span>
+                    <span class="rating-star" data-rating="3">&#9733;</span>
+                    <span class="rating-star" data-rating="4">&#9733;</span>
+                    <span class="rating-star" data-rating="5">&#9733;</span>
+                </div>
+                </div>
+                <div class="col-md-8">
+                <p><strong>Brand:</strong> ${brand}</p>
+                <p><strong>Price:</strong> ${price}</p>
+                <p><strong>Description:</strong></p>
+                <pre class="product-description">${description}</pre>
+                </div>
             </div>
-            <div class="col-md-8">
-              <p><strong>Brand:</strong> ${brand}</p>
-              <p><strong>Price:</strong> ${price}</p>
-              <p><strong>Description:</strong></p>
-              <pre class="product-description">${description}</pre>
-            </div>
-          </div>
-        `);
+            `);
 
-        var rating = localStorage.getItem('rating-' + name);
-        if (rating) {
-            modal.find('.rating-star').css('color', '');
-            modal.find('.rating-star').slice(0, rating).css('color', 'yellow');
+            var rating = localStorage.getItem('rating-' + name);
+            if (rating) {
+                modal.find('.rating-star').css('color', '');
+                modal.find('.rating-star').slice(0, rating).css('color', 'yellow');
+            }
+    
+        });
+    
+        $(document).on('click', '.rating-star', function () {
+        var rating = $(this).data('rating');
+        var productName = $('#productModal .modal-title').text();
+    
+        localStorage.setItem('rating-' + productName, rating);
+    
+        $('#productModal .rating-star').css('color', '');
+        $(this).prevAll('.rating-star').addBack().css('color', 'yellow');
+    
+        $('#rating-' + productName).empty();
+        for (var i = 1; i <= rating; i++) {
+            $('#rating-' + productName).find('.rating-star:nth-child(' + i + ')').css('color', 'yellow'); 
         }
-  
-    //   modal.find('.rating-star').css('color', '');
-    });
-  
-    $(document).on('click', '.rating-star', function () {
-      var rating = $(this).data('rating');
-      var productName = $('#productModal .modal-title').text();
-  
-      localStorage.setItem('rating-' + productName, rating);
-  
-      $('#productModal .rating-star').css('color', '');
-      $(this).prevAll('.rating-star').addBack().css('color', 'yellow');
-  
-      $('#rating-' + productName).empty();
-      for (var i = 1; i <= rating; i++) {
-        $('#rating-' + productName).find('.rating-star:nth-child(' + i + ')').css('color', 'yellow'); 
-      }
 
-      var cardProduct = $('.card-body').filter(function() {
-        return $(this).find('.card-title').text() === productName;
-      });
-      cardProduct.find('.rating-star').css('color', '');
-      cardProduct.find('.rating-star').slice(0, rating).css('color', 'yellow'); 
-    });
-</script>
+        var cardProduct = $('.card-body').filter(function() {
+            return $(this).find('.card-title').text() === productName;
+        });
+        cardProduct.find('.rating-star').css('color', '');
+        cardProduct.find('.rating-star').slice(0, rating).css('color', 'yellow'); 
+        });
+    </script>
 </body>
 </html>

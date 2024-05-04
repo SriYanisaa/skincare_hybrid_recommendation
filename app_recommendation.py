@@ -159,7 +159,7 @@ def recommend():
             print(f"Index {idx} is out of range for tfidf_matrix.")
 
     # Hybrid recommendation (weighted sum)
-    alpha = 0.5 
+    alpha = 0.8
     hybrid_scores = []
     for cf_score, content_score in zip(cf_scores, content_scores):
         hybrid_score = alpha * cf_score + (1 - alpha) * content_score
