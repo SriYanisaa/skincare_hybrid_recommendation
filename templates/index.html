@@ -188,7 +188,7 @@
         <div class="mt-5" id="recommendationSection">
             <div class="row">
                 {% for recommendation in recommendations %}
-                <div class="col-md-4 mb-4">
+                <div class="col-md-4 mb-4 card_wrap">
                     <div class="card_new">
                         <img src="{{ recommendation[3] }}" class="card-img-top" alt="Product Image" data-toggle="modal" data-target="#productModal" data-name="{{ recommendation[1] }}" data-brand="{{ recommendation[2] }}" data-image="{{ recommendation[3] }}" data-price="{{ recommendation[4] }}" data-description="{{ recommendation[5] }}">
                         <div class="card-body">
@@ -247,9 +247,9 @@
 
         function updateRecommendations() {
             var topN = parseInt($('#topN').val());
-            var recommendations = $('.card_new'); 
+            var recommendations = $('.card_wrap'); 
             
-            recommendations.hide();
+            recommendations.css("display", "none");
             
             for (var i = 0; i < topN; i++) {
                 $(recommendations[i]).show();
@@ -303,7 +303,6 @@
                 modal.find('.rating-star').css('color', '');
                 modal.find('.rating-star').slice(0, rating).css('color', 'yellow');
             }
-    
         });
     
         $(document).on('click', '.rating-star', function () {
