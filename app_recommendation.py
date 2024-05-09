@@ -9,6 +9,10 @@ from sklearn.preprocessing import MinMaxScaler
 import numpy as np
 from sklearn.model_selection import train_test_split
 from flask_caching import Cache
+import re
+import nltk
+from nltk.corpus import stopwords
+from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
 
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
@@ -17,6 +21,43 @@ cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 data = pd.read_csv('data_skincare_for_modeling_2_2.csv')
 
 # Preprocess data
+nltk.download('stopwords')
+nltk.download('punkt')
+# Define text preprocessing methods
+factory = StemmerFactory()
+stemmer = factory.create_stemmer()
+stop_words = set(stopwords.words('indonesian'))
+
+def remove_emoji(text):
+    emoji_pattern = re.compile("["
+        u"\U0001F000-\U0001F6FF"  # emoticons & transportasi
+        u"\U0001F780-\U0001F7FF"  # simbol, tanda & bendera
+        u"\U0001F800-\U0001F8FF"  # emoji surat / katakana
+        u"\U0001F900-\U0001F9FF"  # emoji berbagai jenis
+        u"\U00002600-\U000026FF"  # simbol matahari & bulan
+        u"\U00002700-\U000027BF"  # simbol koin, alat musik, dll.
+        u"\U0001F300-\U0001F5FF"  # simbol & markah
+        u"\U0001F680-\U0001F6FF"  # transportasi & simbol tempat
+                           "]+", flags=re.UNICODE)
+    return emoji_pattern.sub(r'', text)
+
+def preprocess_text(text):
+   # Remove emoji
+    text = remove_emoji(text)
+    # Remove numbers
+    text = re.sub(r'\d+', '', text)
+    # Case folding
+    text = text.lower()
+    # Tokenization
+    words = nltk.word_tokenize(text)
+    # Filtering
+    filtered_words = [word for word in words if re.match(r'[a-zA-Z]+', word) and not word in stop_words]
+    # Stemming
+    stemmed_words = [stemmer.stem(word) for word in filtered_words]
+    # Joining the stemmed words back into a single string
+    preprocessed_text = " ".join(stemmed_words)
+    return preprocessed_text
+
 skincare_data_unique = data.drop_duplicates(subset=['description_processed'], keep='first')
 tfidf = TfidfVectorizer()
 tfidf_matrix = tfidf.fit_transform(skincare_data_unique['description_processed'] + ' ' + skincare_data_unique['subcategory'])
@@ -130,11 +171,12 @@ def recommend():
     incompatible_ingredients = form_data['incompatible_ingredients']
     
     input_description = f'{category} {skin_type} {used_products}'
+    input_description = preprocess_text(input_description)
 
     input_tfidf_matrix = tfidf.transform([input_description])
     input_cosine_sim = cosine_similarity(input_tfidf_matrix, tfidf_matrix)
 
-    category_id = category_to_category_encoded[category]
+    category_id = list(category_to_category_encoded.keys()).index(category)
     top_n_similar_products_idx = np.argsort(input_cosine_sim.flatten())[::-1]
     top_n_similar_products = skincare_data_unique.iloc[top_n_similar_products_idx]
     top_n_similar_products_in_category = top_n_similar_products[top_n_similar_products['subcategory'] == category]
@@ -164,23 +206,19 @@ def recommend():
     for cf_score, content_score in zip(cf_scores, content_scores):
         hybrid_score = alpha * cf_score + (1 - alpha) * content_score
         hybrid_scores.append(hybrid_score[0][0])
+    
+    sorted_scores_indices = sorted(enumerate(hybrid_scores), key=lambda x: x[1], reverse=True)
+    sorted_indices = [x[0] for x in sorted_scores_indices]
+    sorted_scores = [x[1] for x in sorted_scores_indices]
+    sorted_product_ids = [top_n_similar_product_ids[i] for i in sorted_indices]
 
      # Print hybrid scores
-    print("Hybrid Scores:")
-    for idx, score in enumerate(hybrid_scores):
-        print(f"Product ID: {top_n_similar_product_ids[idx]}, Hybrid Score: {score}")
-
-    # # Convert hybrid scores to numpy array
-    # hybrid_scores = np.array(hybrid_scores)
-    product_scores_with_index = [(score, idx) for idx, score in enumerate(hybrid_scores)]
-    sorted_product_scores_with_index = sorted(product_scores_with_index, key=lambda x: x[0], reverse=True)
-
-    N = len(top_n_similar_product_ids)
-    top_n_product_indices = [index for _, index in sorted_product_scores_with_index[:N]]
-    top_n_product_ids = [top_n_similar_product_ids[i] for i in top_n_product_indices]
+    print("Hybrid Scores (Descending Order):")
+    for idx, (product_id, score) in enumerate(zip(sorted_product_ids, sorted_scores)):
+        print(f"Rank {idx+1}: Product ID: {product_id}, Hybrid Score: {score}")
 
     top_n_products_info = []
-    for idx, product_id in enumerate(top_n_similar_product_ids):
+    for idx, product_id in enumerate(sorted_product_ids):
         product_info = data.loc[(data['product_id'] == product_id) & (data['subcategory'] == category),
                                 ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
         product_info = product_info.values.tolist()[0]
