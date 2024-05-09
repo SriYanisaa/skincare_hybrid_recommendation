@@ -206,24 +206,22 @@ def recommend():
     for cf_score, content_score in zip(cf_scores, content_scores):
         hybrid_score = alpha * cf_score + (1 - alpha) * content_score
         hybrid_scores.append(hybrid_score[0][0])
-    
-    sorted_scores_indices = sorted(enumerate(hybrid_scores), key=lambda x: x[1], reverse=True)
-    sorted_indices = [x[0] for x in sorted_scores_indices]
-    sorted_scores = [x[1] for x in sorted_scores_indices]
-    sorted_product_ids = [top_n_similar_product_ids[i] for i in sorted_indices]
 
      # Print hybrid scores
-    print("Hybrid Scores (Descending Order):")
-    for idx, (product_id, score) in enumerate(zip(sorted_product_ids, sorted_scores)):
-        print(f"Rank {idx+1}: Product ID: {product_id}, Hybrid Score: {score}")
+    print("Hybrid Scores:")
+    for idx, score in enumerate(hybrid_scores):
+        print(f"Product ID: {top_n_similar_product_ids[idx]}, Hybrid Score: {score}")
 
     top_n_products_info = []
-    for idx, product_id in enumerate(sorted_product_ids):
+    for idx, product_id in enumerate(top_n_similar_product_ids):
         product_info = data.loc[(data['product_id'] == product_id) & (data['subcategory'] == category),
                                 ['product_id', 'product_name', 'brand', 'image_url', 'price', 'description']]
         product_info = product_info.values.tolist()[0]
+        product_info.append(float(hybrid_scores[idx]))
         top_n_products_info.append(product_info)
 
+    top_n_products_info.sort(key=lambda x: x[-1], reverse=True)
+    
     categories = data['subcategory'].unique().tolist()
 
     return render_template('index.html', categories=categories, recommendations=top_n_products_info)
