@@ -169,6 +169,8 @@ def recommend():
     skin_type = form_data['skin_type']
     used_products = form_data['previous_skincare']
     incompatible_ingredients = form_data['incompatible_ingredients']
+
+    incompatible_ingredients = [ingredient.strip() for ingredient in incompatible_ingredients.split(',')]
     
     input_description = f'{category} {skin_type} {used_products}'
     input_description = preprocess_text(input_description)
@@ -181,6 +183,8 @@ def recommend():
     top_n_similar_products = skincare_data_unique.iloc[top_n_similar_products_idx]
     top_n_similar_products_in_category = top_n_similar_products[top_n_similar_products['subcategory'] == category]
 
+    # Filter out products with incompatible ingredients
+    top_n_similar_products_in_category = top_n_similar_products_in_category[~top_n_similar_products_in_category['description'].str.contains('|'.join(incompatible_ingredients), case=False)]
     top_n_similar_product_ids = top_n_similar_products_in_category['product_id'].tolist()
 
     # Collaborative Filtering Score
