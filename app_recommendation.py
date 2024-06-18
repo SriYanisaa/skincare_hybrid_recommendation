@@ -1,4 +1,4 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -13,12 +13,15 @@ import re
 import nltk
 from nltk.corpus import stopwords
 from Sastrawi.Stemmer.StemmerFactory import StemmerFactory
+import time
 
 app = Flask(__name__)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
 
 # Load data
 data = pd.read_csv('data_skincare_for_modeling_2_2.csv')
+
+progress = 0 
 
 # Preprocess data
 nltk.download('stopwords')
@@ -164,6 +167,8 @@ def home():
 
 @app.route('/recommend', methods=['POST'])
 def recommend():
+    global progress
+    progress = 0
     form_data = request.form
     category = form_data['category']
     skin_type = form_data['skin_type']
@@ -190,10 +195,13 @@ def recommend():
     # Collaborative Filtering Score
     category_input_cnn = np.array([category_id])
     cf_scores = []
-    for product_id in top_n_similar_product_ids:
+    for idx, product_id in enumerate(top_n_similar_product_ids):
         product_input_cnn = np.array([product_id])
         cf_score = model.predict([category_input_cnn, product_input_cnn])
         cf_scores.append(cf_score)
+        progress = int(((idx + 1) / len(top_n_similar_product_ids)) * 50)
+        print(f"CF Progress: {progress}%")  # Cetak kemajuan Collaborative Filtering
+        time.sleep(0.1)
 
     # Content-Based Filtering Score
     content_scores = []
@@ -201,6 +209,9 @@ def recommend():
         if idx < tfidf_matrix.shape[0]:  # Ensure idx is within the range of tfidf_matrix
             content_score = cosine_similarity(input_tfidf_matrix, tfidf_matrix[idx])
             content_scores.append(content_score)
+            progress = int(((idx + 1) / len(top_n_similar_product_ids)) * 50) + 50
+            print(f"Content-Based Progress: {progress}%")  # Cetak kemajuan Content-Based Filtering
+            time.sleep(0.1)
         else:
             print(f"Index {idx} is out of range for tfidf_matrix.")
 
@@ -230,7 +241,12 @@ def recommend():
 
     categories = data['subcategory'].unique().tolist()
 
-    return render_template('index.html', categories=categories, recommendations=top_n_products_info)
+    return render_template('index.html', categories=categories, recommendations=top_n_products_info, progress=progress)
+
+@app.route('/progress')
+def get_progress():
+    global progress
+    return jsonify(progress=progress)
 
 if __name__ == '__main__':
     app.run(debug=True)
